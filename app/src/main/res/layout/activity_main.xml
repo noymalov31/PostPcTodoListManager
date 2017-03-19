@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="com.ex2.noy.todolistmanager.MainActivity">
+
+   <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="match_parent"
+       android:id="@+id/header"
+       android:text="What Do You Want To Do??\n"
+       android:textColor="@android:color/holo_blue_light"
+       android:typeface="serif"
+       android:textSize="14sp"
+       android:layout_toEndOf="@+id/list"/>
+
+
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/content_main"
+
+        />
+
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/addFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:backgroundTint="@color/colorPrimary"
+        android:src="@drawable/ic_add"
+        android:tint="@android:color/white"
+        app:elevation="10dp"
+        android:layout_marginLeft="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@+id/list">
+
+    </android.support.design.widget.FloatingActionButton>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/edit"
+        android:hint="What do you want to do?"
+        android:inputType="textImeMultiLine"
+        android:ems="10"
+        android:layout_gravity="bottom"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/addFab" />
+
+
+
+
+</RelativeLayout>
