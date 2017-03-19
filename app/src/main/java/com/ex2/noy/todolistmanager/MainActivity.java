@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 final AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
                 b.setTitle(adapter.getItem(position));
                 b.setMessage("Do you want to delete?!");
+
                 b.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         adapter.deleteItem(position);
