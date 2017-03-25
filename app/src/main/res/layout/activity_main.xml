@@ -43,17 +43,6 @@
 
     </android.support.design.widget.FloatingActionButton>
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/edit"
-        android:hint="What do you want to do?"
-        android:inputType="textImeMultiLine"
-        android:ems="10"
-        android:layout_gravity="bottom"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/addFab" />
 
 
 

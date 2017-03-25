@@ -1,16 +1,16 @@
 package com.ex2.noy.todolistmanager;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,56 +18,95 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fab;
     private ListAdapter adapter;
     private  ArrayList<String> listItems ;
-    private EditText newItem;
     private ListView list;
     static final String TEXT = "";
+
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        newItem = (EditText) findViewById(R.id.edit);
         listItems = new ArrayList<String>();
         adapter = new ListAdapter(getApplicationContext(), R.layout.one_item, listItems);
         fab = (FloatingActionButton) findViewById(R.id.addFab);
         list = (ListView) findViewById(R.id.list);
+        final Calendar c = Calendar.getInstance();
+
+
 
         if (savedInstanceState != null) {
             String[] values = savedInstanceState.getStringArray("myKey");
             listItems = new ArrayList<String>(Arrays.asList(values));
-            newItem.setText(listItems.toString());
             if (values != null) {
                 adapter = new ListAdapter(getApplicationContext(), R.layout.one_item,listItems);
                 adapter.notifyDataSetChanged();
             }
         }
 
-
         fab.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
-               addItem();
+                LinearLayout layout = new LinearLayout(view.getContext());
+                layout.setOrientation(LinearLayout.VERTICAL);
+                final EditText input = new EditText(view.getContext());
+                input.setHint("What do you want to do?");
+                layout.addView(input);
+                final DatePicker dp = new DatePicker(view.getContext());
+                layout.addView(dp);
+
+
+                new AlertDialog.Builder(view.getContext())
+                        .setTitle("Add Activity")
+                        .setView(layout)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String msg =  String.valueOf(dp.getDayOfMonth())+"."+String.valueOf(dp.getMonth()+1)+"." +String.valueOf(dp.getYear())+":";
+                                msg += input.getText().toString();
+                                adapter.add(msg);
+
+                                Toast.makeText(MainActivity.this, "activity added successfully ", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(MainActivity.this, "oh no..", Toast.LENGTH_SHORT).show();
+                            }
+                        }).show();
             }
         });
 
         list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+
                 final AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
-                b.setTitle(adapter.getItem(position));
-                b.setMessage("Do you want to delete?!");
+                String msg = adapter.getItem(position);
+                String[] content = msg.split(":");
+                b.setTitle(content[1]);
+                b.setMessage("Do you want to delete this reminder?");
 
                 b.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -75,16 +114,47 @@ public class MainActivity extends AppCompatActivity {
                         adapter.notifyDataSetChanged();
                     }
                 });
-                b.show();
 
+
+                b.show();
                 return true;
             }
         });
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
+                String msg = adapter.getItem(position);
+                String[] content = msg.split(":");
+                b.setTitle(content[1]);
+                b.setMessage("At: " + content[0]);
+
+                b.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                    }
+                });
+
+                String[] content_parts = content[1].split(" ");
+                if (Objects.equals(content_parts[0], "call") || Objects.equals(content_parts[0], "Call")){
+                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    intent.setData(Uri.parse("tel:"+content_parts[1]));
+                    startActivity(intent);
+                }
+                else {
+                    b.show();
+                }
+
+            }
+        });
+
 
         list.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 
         list.setAdapter(adapter);
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -95,20 +165,40 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        addItem();
+        LinearLayout layout = new LinearLayout(MainActivity.this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        final EditText input = new EditText(MainActivity.this);
+        input.setHint("What do you want to do?");
+        layout.addView(input);
+        final DatePicker dp = new DatePicker(MainActivity.this);
+        layout.addView(dp);
+
+
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle("Add Activity")
+                .setView(layout)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String msg =  String.valueOf(dp.getDayOfMonth())+"."+String.valueOf(dp.getMonth()+1)+"." +String.valueOf(dp.getYear())+":";
+                        msg += input.getText().toString();
+                        adapter.add(msg);
+                        Toast.makeText(MainActivity.this, "activity added successfully ", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(MainActivity.this, "oh no..", Toast.LENGTH_SHORT).show();
+                    }
+                }).show();
+
         return true;
     }
 
-    private void addItem() {
-        adapter.add(newItem.getText().toString());
-        newItem.setText("");
-        // Hide keyboard after send.
-        InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-    }
+
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
-        newItem.setText(savedInstanceState.getString(TEXT));
         Parcelable listViewState = savedInstanceState.getParcelable("list.state");
         list.onRestoreInstanceState(listViewState);
     }
@@ -117,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putString(TEXT, newItem.getText().toString());
         outState.putParcelable("list.state", list.onSaveInstanceState());
         String[] values = adapter.getValues();
         outState.putStringArray("myKey", values);
