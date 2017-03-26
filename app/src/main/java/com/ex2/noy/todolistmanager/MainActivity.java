@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
+                final int myposition = position;
                 String msg = adapter.getItem(position);
                 String[] content = msg.split(":");
                 b.setTitle(content[1]);
@@ -134,16 +135,29 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
+                b.setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        adapter.deleteItem(myposition);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
 
-                String[] content_parts = content[1].split(" ");
+
+                final String[] content_parts = content[1].split(" ");
                 if (Objects.equals(content_parts[0], "call") || Objects.equals(content_parts[0], "Call")){
-                    Intent intent = new Intent(Intent.ACTION_DIAL);
-                    intent.setData(Uri.parse("tel:"+content_parts[1]));
-                    startActivity(intent);
+                    b.setNeutralButton("call", new DialogInterface.OnClickListener(){
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(Intent.ACTION_DIAL);
+                            intent.setData(Uri.parse("tel:"+content_parts[1]));
+                            startActivity(intent);
+                        }
+                    });
+
                 }
-                else {
-                    b.show();
-                }
+
+                b.show();
+
 
             }
         });
