@@ -26,6 +26,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -38,9 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private  ArrayList<String> listItems ;
     private ListView list;
     static final String TEXT = "";
-
-
-
+    DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("todo");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         fab = (FloatingActionButton) findViewById(R.id.addFab);
         list = (ListView) findViewById(R.id.list);
         final Calendar c = Calendar.getInstance();
-
+        list.setAdapter(adapter);
 
 
         if (savedInstanceState != null) {
@@ -84,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 String msg =  String.valueOf(dp.getDayOfMonth())+"."+String.valueOf(dp.getMonth()+1)+"." +String.valueOf(dp.getYear())+":";
                                 msg += input.getText().toString();
-                                adapter.add(msg);
+                                dbRef.push().setValue(msg);
 
                                 Toast.makeText(MainActivity.this, "activity added successfully ", Toast.LENGTH_SHORT).show();
                             }
@@ -125,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
                 final int myposition = position;
-                String msg = adapter.getItem(position);
+                final String msg = adapter.getItem(position);
                 String[] content = msg.split(":");
                 b.setTitle(content[1]);
                 b.setMessage("At: " + content[0]);
@@ -139,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         adapter.deleteItem(myposition);
                         adapter.notifyDataSetChanged();
+                        dbRef.child(msg).removeValue();
                     }
                 });
 
@@ -164,11 +170,46 @@ public class MainActivity extends AppCompatActivity {
 
 
         list.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        dbRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-        list.setAdapter(adapter);
+                String msg = dataSnapshot.getValue(String.class);
+                adapter.add(msg);
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -1,5 +1,6 @@
 package com.ex2.noy.todolistmanager;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,15 +34,17 @@ public class ListAdapter extends ArrayAdapter<String> {
     private TextView myText;
     private List<String> listOfItems;
     private LinearLayout layout;
+    private Context context;
 
 
     public ListAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<String> objects) {
         super(context, resource, objects);
+        this.context = context;
         this.listOfItems = objects;
 
     }
 
-    public void add(String item) {
+    public void add(String item, String Key) {
         super.add(item);
     }
 
